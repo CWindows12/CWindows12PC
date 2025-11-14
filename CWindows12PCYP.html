@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CWindows12云盘 - 无限制云存储</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 样式保持不变 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .card-body {
+            padding: 30px;
+        }
+        
+        .auth-container {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .auth-form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a0a95;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .file-list {
+            padding: 20px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+        
+        .file-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            border-radius: 6px;
+            background: #e9ecef;
+            color: var(--gray);
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .file-meta {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .file-actions-item {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: var(--border-radius);
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .file-actions {
+                flex-wrap: wrap;
+            }
+        }
+        
+        .security-info {
+            background: #e7f3ff;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 20px;
+            border-radius: 4px;
+        }
+        
+        .security-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .folder-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+        
+        .folder-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .folder-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            border-radius: 6px;
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .folder-info {
+            flex: 1;
+        }
+        
+        .folder-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .folder-meta {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .breadcrumb-item:hover {
+            color: var(--primary);
+        }
+        
+        .breadcrumb-separator {
+            margin: 0 10px;
+            color: var(--gray);
+        }
+        
+        .current-folder {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1100;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+        
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .storage-info {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 20px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--success);
+        }
+        
+        .debug-info {
+            background: #fff3cd;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 登录/注册卡片 -->
+        <div class="card" id="auth-card">
+            <div class="card-header">
+                <h1>欢迎使用CWindows12云盘</h1>
+                <p>无限制云存储-安全性高</p>
+          </div>
+            <div class="card-body">
+                <div class="auth-container">
+                    <!-- 登录表单 -->
+                    <div class="auth-form">
+                        <h2>登录账户</h2>
+<div class="form-group">
+            <label for="login-email">邮箱</label>
+                            <input type="email" id="login-email" placeholder="请输入您的邮箱" value="test@test.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">密码</label>
+                            <input type="password" id="login-password" placeholder="请输入密码" value="12345678">
+                        </div>
+                        <button class="btn btn-primary" id="login-btn">登录</button>
+                        <div class="security-info">
+                            <div class="security-title">存储优势</div>
+                            <p>基于IndexedDB，支持大文件存储，数据永久保留</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 注册表单 -->
+                    <div class="auth-form">
+                        <h2>注册账户</h2>
+                        <div class="form-group">
+                            <label for="register-email">邮箱</label>
+                            <input type="email" id="register-email" placeholder="请输入您的邮箱">
+                      </div>
+                        <div class="form-group">
+                            <label for="register-password">密码</label>
+                            <input type="password" id="register-password" placeholder="请设置密码（至少8位）">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">确认密码</label>
+                            <input type="password" id="confirm-password" placeholder="请再次输入密码">
+                        </div>
+                        <button class="btn btn-secondary" id="register-btn">注册</button>
+                      <div class="security-info">
+                            <div class="security-title">无限制存储</div>
+                        <p>支持上传大文件，无存储空间限制，数据永久保存</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 云盘界面 -->
+        <div class="card dashboard" id="dashboard">
+            <div class="dashboard-header">
+                <h2>我的云盘</h2>
+                <div class="user-info">
+                    <div class="avatar" id="user-avatar">U</div>
+                    <div>
+                        <div id="user-email">user@example.com</div>
+                        <button class="btn btn-outline" id="logout-btn">退出登录</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 存储信息 -->
+            <div class="storage-info">
+                <div class="security-title">存储状态</div>
+                <p>基于IndexedDB - 无存储限制，数据永久保存</p>
+                <p>支持大文件上传，安全可靠</p>
+            </div>
+            
+            <div class="breadcrumb" id="breadcrumb">
+                <div class="breadcrumb-item current-folder">全部文件</div>
+            </div>
+            
+            <div class="file-actions">
+                <button class="btn btn-primary" id="upload-btn">
+                    <i class="fas fa-upload"></i> 上传文件
+                </button>
+                <button class="btn btn-success" id="new-folder-btn">
+                    <i class="fas fa-folder-plus"></i> 新建文件夹
+                </button>
+                <button class="btn btn-outline" id="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> 刷新
+                </button>
+                <input type="file" id="file-input" class="hidden" multiple>
+            </div>
+            
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <h3>拖放文件到此处上传</h3>
+                <p>支持大文件，无存储限制</p>
+            </div>
+            
+            <div class="file-list">
+                <h3 id="current-folder-title">全部文件</h3>
+                <div id="files-container">
+                    <div class="loader" id="files-loader"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建文件夹模态框 -->
+    <div class="modal" id="folder-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建文件夹</h3>
+                <button class="close-btn" id="close-folder-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="folder-name">文件夹名称</label>
+                <input type="text" id="folder-name" placeholder="请输入文件夹名称">
+            </div>
+            <button class="btn btn-primary" id="create-folder-btn">创建</button>
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div class="notification hidden" id="notification">
+        <i class="fas fa-check-circle" id="notification-icon"></i>
+        <span id="notification-text"></span>
+    </div>
+
+    <script>
+        // 修复的云存储系统
+        class FixedCloudStorage {
+            constructor() {
+                this.dbName = 'CloudStorageDB';
+                this.version = 3; // 增加版本号确保数据库更新
+                this.db = null;
+                this.init();
+            }
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.version);
+                    
+                    request.onerror = () => {
+                        console.error('数据库打开失败:', request.error);
+                        reject(request.error);
+                    };
+                    
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        console.log('数据库初始化成功');
+                        resolve(this.db);
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        console.log('数据库升级中...');
+                        const db = event.target.result;
+                        
+                        // 删除旧的对象存储（如果存在）
+                        if (db.objectStoreNames.contains('users')) {
+                            db.deleteObjectStore('users');
+                        }
+                        if (db.objectStoreNames.contains('files')) {
+                            db.deleteObjectStore('files');
+                        }
+                        if (db.objectStoreNames.contains('fileData')) {
+                            db.deleteObjectStore('fileData');
+                        }
+                        
+                        // 创建新的对象存储
+                        const userStore = db.createObjectStore('users', { keyPath: 'email' });
+                        userStore.createIndex('email', 'email', { unique: true });
+                        
+                        const fileStore = db.createObjectStore('files', { keyPath: 'id' });
+                        fileStore.createIndex('owner', 'owner', { unique: false });
+                        fileStore.createIndex('name', 'name', { unique: false });
+                        
+                        db.createObjectStore('fileData', { keyPath: 'fileId' });
+                        
+                        console.log('数据库结构创建完成');
+                    };
+                });
+            }
+
+            // 用户管理 - 修复版本
+            async registerUser(email, password) {
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        const transaction = this.db.transaction(['users'], 'readwrite');
+                        const store = transaction.objectStore('users');
+                        
+                        // 检查用户是否已存在
+                        const request = store.get(email);
+                        request.onsuccess = () => {
+                            if (request.result) {
+                                reject(new Error('用户已存在'));
+                                return;
+                            }
+                            
+                            const user = {
+                                email: email,
+                                password: password, // 直接存储密码（演示用）
+                                createdAt: new Date().toISOString(),
+                                files: [],
+                                folders: []
+                            };
+                            
+                            const addRequest = store.add(user);
+                            addRequest.onsuccess = () => {
+                                console.log('用户注册成功:', email);
+                                resolve(user);
+                            };
+                            addRequest.onerror = () => reject(addRequest.error);
+                        };
+                        request.onerror = () => reject(request.error);
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            }
+
+            async loginUser(email, password) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['users'], 'readonly');
+                    const store = transaction.objectStore('users');
+                    const request = store.get(email);
+                    
+                    request.onsuccess = () => {
+                        const user = request.result;
+                        console.log('登录查询结果:', user);
+                        
+                        if (!user) {
+                            reject(new Error('用户不存在'));
+                            return;
+                        }
+                        
+                        if (user.password !== password) {
+                            console.log('密码不匹配:', {输入密码: password, 存储密码: user.password});
+                            reject(new Error('密码错误'));
+                            return;
+                        }
+                        
+                        console.log('登录成功:', email);
+                        resolve(user);
+                    };
+                    
+                    request.onerror = () => {
+                        console.error('登录查询错误:', request.error);
+                        reject(request.error);
+                    };
+                });
+            }
+
+            // 文件操作
+            async uploadFile(email, file) {
+                return new Promise(async (resolve, reject) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = async () => {
+                        try {
+                            const fileId = this.generateFileId();
+                            const fileMeta = {
+                                id: fileId,
+                                name: file.name,
+                                size: file.size,
+                                type: file.type,
+                                uploaded: new Date().toISOString(),
+                                owner: email
+                            };
+
+                            // 存储文件数据
+                            const dataTransaction = this.db.transaction(['fileData'], 'readwrite');
+                            const dataStore = dataTransaction.objectStore('fileData');
+                            await new Promise((resolve, reject) => {
+                                const request = dataStore.add({
+                                    fileId: fileId,
+                                    data: reader.result
+                                });
+                                request.onsuccess = () => resolve();
+                                request.onerror = () => reject(request.error);
+                            });
+
+                            // 更新用户文件列表
+                            const userTransaction = this.db.transaction(['users'], 'readwrite');
+                            const userStore = userTransaction.objectStore('users');
+                            const user = await new Promise((resolve, reject) => {
+                                const request = userStore.get(email);
+                                request.onsuccess = () => resolve(request.result);
+                                request.onerror = () => reject(request.error);
+                            });
+                            
+                            if (!user.files.some(f => f.name === file.name)) {
+                                user.files.push(fileMeta);
+                                await new Promise((resolve, reject) => {
+                                    const request = userStore.put(user);
+                                    request.onsuccess = () => resolve();
+                                    request.onerror = () => reject(request.error);
+                                });
+                            }
+
+                            // 存储文件元数据
+                            const fileTransaction = this.db.transaction(['files'], 'readwrite');
+                            const fileStore = fileTransaction.objectStore('files');
+                            await new Promise((resolve, reject) => {
+                                const request = fileStore.add(fileMeta);
+                                request.onsuccess = () => resolve();
+                                request.onerror = () => reject(request.error);
+                            });
+
+                            resolve(fileMeta);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+
+                    reader.onerror = () => reject(reader.error);
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+
+            async downloadFile(fileId) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['fileData', 'files'], 'readonly');
+                    const dataStore = transaction.objectStore('fileData');
+                    const fileStore = transaction.objectStore('files');
+                    
+                    const dataRequest = dataStore.get(fileId);
+                    const metaRequest = fileStore.get(fileId);
+                    
+                    Promise.all([
+                        new Promise(resolve => {
+                            dataRequest.onsuccess = () => resolve(dataRequest.result);
+                            dataRequest.onerror = () => resolve(null);
+                        }),
+                        new Promise(resolve => {
+                            metaRequest.onsuccess = () => resolve(metaRequest.result);
+                            metaRequest.onerror = () => resolve(null);
+                        })
+                    ]).then(([fileData, fileMeta]) => {
+                        if (!fileData || !fileMeta) {
+                            reject(new Error('文件不存在'));
+                            return;
+                        }
+                        
+                        resolve({
+                            data: fileData.data,
+                            meta: fileMeta
+                        });
+                    });
+                });
+            }
+
+            async deleteFile(email, filename) {
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        // 获取用户
+                        const userTransaction = this.db.transaction(['users'], 'readwrite');
+                        const userStore = userTransaction.objectStore('users');
+                        const user = await new Promise((resolve, reject) => {
+                            const request = userStore.get(email);
+                            request.onsuccess = () => resolve(request.result);
+                            request.onerror = () => reject(request.error);
+                        });
+                        
+                        const fileIndex = user.files.findIndex(f => f.name === filename);
+                        if (fileIndex === -1) {
+                            reject(new Error('文件不存在'));
+                            return;
+                        }
+                        
+                        const fileId = user.files[fileIndex].id;
+                        user.files.splice(fileIndex, 1);
+                        
+                        // 更新用户
+                        await new Promise((resolve, reject) => {
+                            const request = userStore.put(user);
+                            request.onsuccess = () => resolve();
+                            request.onerror = () => reject(request.error);
+                        });
+
+                        // 删除文件数据和元数据
+                        const deleteTransaction = this.db.transaction(['fileData', 'files'], 'readwrite');
+                        await Promise.all([
+                            new Promise(resolve => {
+                                const request = deleteTransaction.objectStore('fileData').delete(fileId);
+                                request.onsuccess = () => resolve();
+                                request.onerror = () => resolve(); // 即使删除失败也继续
+                            }),
+                            new Promise(resolve => {
+                                const request = deleteTransaction.objectStore('files').delete(fileId);
+                                request.onsuccess = () => resolve();
+                                request.onerror = () => resolve(); // 即使删除失败也继续
+                            })
+                        ]);
+
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            }
+
+            async getUserFiles(email) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['users'], 'readonly');
+                    const store = transaction.objectStore('users');
+                    const request = store.get(email);
+                    
+                    request.onsuccess = () => {
+                        const user = request.result;
+                        resolve(user ? user.files : []);
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async getUserFolders(email) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['users'], 'readonly');
+                    const store = transaction.objectStore('users');
+                    const request = store.get(email);
+                    
+                    request.onsuccess = () => {
+                        const user = request.result;
+                        resolve(user ? user.folders : []);
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async createFolder(email, folderName) {
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        const transaction = this.db.transaction(['users'], 'readwrite');
+                        const store = transaction.objectStore('users');
+                        const user = await new Promise((resolve, reject) => {
+                            const request = store.get(email);
+                            request.onsuccess = () => resolve(request.result);
+                            request.onerror = () => reject(request.error);
+                        });
+                        
+                        if (user.folders.some(f => f.name === folderName)) {
+                            reject(new Error('文件夹已存在'));
+                            return;
+                        }
+                        
+                        user.folders.push({
+                            name: folderName,
+                            created: new Date().toISOString()
+                        });
+                        
+                        await new Promise((resolve, reject) => {
+                            const request = store.put(user);
+                            request.onsuccess = () => resolve();
+                            request.onerror = () => reject(request.error);
+                        });
+                        
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            }
+
+            async deleteFolder(email, folderName) {
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        const transaction = this.db.transaction(['users'], 'readwrite');
+                        const store = transaction.objectStore('users');
+                        const user = await new Promise((resolve, reject) => {
+                            const request = store.get(email);
+                            request.onsuccess = () => resolve(request.result);
+                            request.onerror = () => reject(request.error);
+                        });
+                        
+                        const folderIndex = user.folders.findIndex(f => f.name === folderName);
+                        if (folderIndex === -1) {
+                            reject(new Error('文件夹不存在'));
+                            return;
+                        }
+                        
+                        user.folders.splice(folderIndex, 1);
+                        await new Promise((resolve, reject) => {
+                            const request = store.put(user);
+                            request.onsuccess = () => resolve();
+                            request.onerror = () => reject(request.error);
+                        });
+                        
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            }
+
+            generateFileId() {
+                return 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            // 调试方法：重置数据库
+            async resetDatabase() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.deleteDatabase(this.dbName);
+                    request.onsuccess = () => {
+                        console.log('数据库重置成功');
+                        this.init().then(resolve).catch(reject);
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            }
+        }
+
+        // 全局变量
+        let cloudStorage;
+        let currentUserEmail = null;
+
+        // 初始化存储系统
+        async function initializeStorage() {
+            try {
+                cloudStorage = new FixedCloudStorage();
+                await cloudStorage.init();
+                console.log('存储系统初始化成功');
+                
+                // 检查是否有已登录的用户
+                const savedUser = localStorage.getItem('current_user');
+                if (savedUser) {
+                    currentUserEmail = savedUser;
+                    showDashboard(savedUser);
+                }
+            } catch (error) {
+                console.error('存储系统初始化失败:', error);
+                showNotification('存储系统初始化失败: ' + error.message, 'error');
+                
+                // 尝试重置数据库
+                setTimeout(async () => {
+                    try {
+                        await cloudStorage.resetDatabase();
+                        showNotification('数据库已重置，请重新注册', 'success');
+                    } catch (resetError) {
+                        console.error('数据库重置失败:', resetError);
+                    }
+                }, 2000);
+            }
+        }
+
+        // DOM元素
+        const authCard = document.getElementById('auth-card');
+        const dashboard = document.getElementById('dashboard');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const newFolderBtn = document.getElementById('new-folder-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const filesContainer = document.getElementById('files-container');
+        const userEmail = document.getElementById('user-email');
+        const userAvatar = document.getElementById('user-avatar');
+        const folderModal = document.getElementById('folder-modal');
+        const closeFolderModal = document.getElementById('close-folder-modal');
+        const createFolderBtn = document.getElementById('create-folder-btn');
+        const folderNameInput = document.getElementById('folder-name');
+        const breadcrumb = document.getElementById('breadcrumb');
+        const currentFolderTitle = document.getElementById('current-folder-title');
+        const notification = document.getElementById('notification');
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationText = document.getElementById('notification-text');
+        
+        // 当前文件夹路径
+        let currentPath = [];
+
+        // 初始化
+        initializeStorage();
+
+        // 登录事件
+        loginBtn.addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                showNotification('请填写邮箱和密码', 'error');
+                return;
+            }
+            
+            try {
+                await cloudStorage.loginUser(email, password);
+                currentUserEmail = email;
+                localStorage.setItem('current_user', email);
+                showDashboard(email);
+                showNotification('登录成功', 'success');
+            } catch (error) {
+                console.error('登录错误:', error);
+                showNotification('登录失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 注册事件
+        registerBtn.addEventListener('click', async () => {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (!email || !password || !confirmPassword) {
+                showNotification('请填写所有字段', 'error');
+                return;
+            }
+            
+            if (password.length < 8) {
+                showNotification('密码长度至少8位', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showNotification('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            try {
+                await cloudStorage.registerUser(email, password);
+                showNotification('注册成功，请登录', 'success');
+                
+                document.getElementById('register-email').value = '';
+                document.getElementById('register-password').value = '';
+                document.getElementById('confirm-password').value = '';
+            } catch (error) {
+                showNotification('注册失败: ' + error.message, 'error');
+            }
+        });
+        
+        // 其他事件监听器保持不变...
+        // [这里包含之前的所有其他事件监听器]
+
+        // 退出登录
+        logoutBtn.addEventListener('click', () => {
+            currentUserEmail = null;
+            localStorage.removeItem('current_user');
+            showAuth();
+            showNotification('已退出登录', 'success');
+        });
+        
+        // 上传文件
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (files.length > 0) {
+                await uploadFiles(files);
+            }
+        });
+        
+        // 拖放上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary)';
+            uploadArea.style.background = 'rgba(67, 97, 238, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = '';
+        });
+        
+        uploadArea.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = '';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                await uploadFiles(files);
+            }
+        });
+        
+        // 新建文件夹
+        newFolderBtn.addEventListener('click', () => {
+            folderModal.style.display = 'flex';
+            folderNameInput.value = '';
+            folderNameInput.focus();
+        });
+        
+        closeFolderModal.addEventListener('click', () => {
+            folderModal.style.display = 'none';
+        });
+        
+        createFolderBtn.addEventListener('click', async () => {
+            const folderName = folderNameInput.value.trim();
+            if (!folderName) {
+                showNotification('请输入文件夹名称', 'error');
+                return;
+            }
+            
+            try {
+                await cloudStorage.createFolder(currentUserEmail, folderName);
+                folderModal.style.display = 'none';
+                loadFiles(currentUserEmail);
+                showNotification(`文件夹 "${folderName}" 创建成功`, 'success');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        });
+        
+        // 刷新文件列表
+        refreshBtn.addEventListener('click', () => {
+            if (currentUserEmail) {
+                loadFiles(currentUserEmail);
+                showNotification('文件列表已刷新', 'success');
+            }
+        });
+        
+        // 显示云盘界面
+        function showDashboard(email) {
+            authCard.style.display = 'none';
+            dashboard.style.display = 'block';
+            userEmail.textContent = email;
+            userAvatar.textContent = email.charAt(0).toUpperCase();
+            
+            currentPath = [];
+            updateBreadcrumb();
+            loadFiles(email);
+        }
+        
+        // 显示登录界面
+        function showAuth() {
+            authCard.style.display = 'block';
+            dashboard.style.display = 'none';
+        }
+        
+        // 加载文件列表
+        async function loadFiles(email) {
+            filesContainer.innerHTML = '<div class="loader" id="files-loader"></div>';
+            
+            try {
+                const userFiles = await cloudStorage.getUserFiles(email);
+                const userFolders = await cloudStorage.getUserFolders(email);
+                
+                if (userFiles.length === 0 && userFolders.length === 0) {
+                    filesContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--gray);">
+                            <div style="font-size: 48px; margin-bottom: 15px;"><i class="fas fa-folder-open"></i></div>
+                            <h3>暂无文件</h3>
+                            <p>上传您的第一个文件开始使用云盘</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let filesHTML = '';
+                
+                // 显示文件夹
+                userFolders.forEach(folder => {
+                    filesHTML += `
+                        <div class="folder-item" onclick="openFolder('${folder.name}')">
+                            <div class="folder-icon"><i class="fas fa-folder"></i></div>
+                            <div class="folder-info">
+                                <div class="folder-name">${folder.name}</div>
+                                <div class="folder-meta">文件夹 • 创建于 ${new Date(folder.created).toLocaleDateString()}</div>
+                            </div>
+                            <div class="file-actions-item">
+                                <button class="btn btn-danger" onclick="event.stopPropagation(); deleteFolder('${folder.name}')">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // 显示文件
+                userFiles.forEach(file => {
+                    const fileSize = formatFileSize(file.size);
+                    const uploadDate = new Date(file.uploaded).toLocaleDateString();
+                    
+                    filesHTML += `
+                        <div class="file-item">
+                            <div class="file-icon">${getFileIcon(file.type)}</div>
+                            <div class="file-info">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-meta">${fileSize} • 上传于 ${uploadDate}</div>
+                            </div>
+                            <div class="file-actions-item">
+                                <button class="btn btn-primary" onclick="downloadFile('${file.id}')">下载</button>
+                                <button class="btn btn-danger" onclick="deleteFile('${file.name}')">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                filesContainer.innerHTML = filesHTML;
+            } catch (error) {
+                showNotification('加载文件列表失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 上传文件
+        async function uploadFiles(files) {
+            if (!currentUserEmail) return;
+            
+            filesContainer.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="loader"></div>
+                    <p>上传文件中...</p>
+                </div>
+            `;
+            
+            try {
+                let successCount = 0;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    try {
+                        await cloudStorage.uploadFile(currentUserEmail, file);
+                        successCount++;
+                    } catch (error) {
+                        if (error.message.includes('已存在')) {
+                            showNotification(`文件 "${file.name}" 已存在`, 'error');
+                        } else {
+                            showNotification(`上传 "${file.name}" 失败: ${error.message}`, 'error');
+                        }
+                    }
+                }
+                
+                loadFiles(currentUserEmail);
+                showNotification(`成功上传 ${successCount} 个文件`, 'success');
+            } catch (error) {
+                showNotification('上传失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 下载文件
+        async function downloadFile(fileId) {
+            if (!currentUserEmail) return;
+            
+            try {
+                const fileData = await cloudStorage.downloadFile(fileId);
+                
+                // 创建Blob
+                const blob = new Blob([fileData.data], { type: fileData.meta.type });
+                const url = URL.createObjectURL(blob);
+                
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileData.meta.name;
+                
+                // 触发下载
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // 清理URL
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+                
+                showNotification(`开始下载: ${fileData.meta.name}`, 'success');
+            } catch (error) {
+                showNotification('下载失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 删除文件
+        async function deleteFile(filename) {
+            if (confirm(`确定要删除 "${filename}" 吗？`)) {
+                try {
+                    await cloudStorage.deleteFile(currentUserEmail, filename);
+                    loadFiles(currentUserEmail);
+                    showNotification(`文件 "${filename}" 已删除`, 'success');
+                } catch (error) {
+                    showNotification('删除失败: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // 删除文件夹
+        async function deleteFolder(folderName) {
+            if (confirm(`确定要删除文件夹 "${folderName}" 吗？`)) {
+                try {
+                    await cloudStorage.deleteFolder(currentUserEmail, folderName);
+                    loadFiles(currentUserEmail);
+                    showNotification(`文件夹 "${folderName}" 已删除`, 'success');
+                } catch (error) {
+                    showNotification('删除失败: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // 打开文件夹
+        function openFolder(folderName) {
+            currentPath.push(folderName);
+            updateBreadcrumb();
+            
+            filesContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--gray);">
+                    <div style="font-size: 48px; margin-bottom: 15px;"><i class="fas fa-folder-open"></i></div>
+                    <h3>${folderName}</h3>
+                    <p>在实际应用中，这里会显示文件夹内的文件</p>
+                    <button class="btn btn-primary" onclick="goBack()" style="margin-top: 15px;">返回上级目录</button>
+                </div>
+            `;
+        }
+        
+        // 更新面包屑导航
+        function updateBreadcrumb() {
+            let breadcrumbHTML = '';
+            
+            breadcrumbHTML += `<div class="breadcrumb-item" onclick="goToRoot()">全部文件</div>`;
+            
+            currentPath.forEach((folder, index) => {
+                breadcrumbHTML += `<div class="breadcrumb-separator">/</div>`;
+                if (index === currentPath.length - 1) {
+                    breadcrumbHTML += `<div class="breadcrumb-item current-folder">${folder}</div>`;
+                } else {
+                    breadcrumbHTML += `<div class="breadcrumb-item" onclick="goToFolder(${index})">${folder}</div>`;
+                }
+            });
+            
+            breadcrumb.innerHTML = breadcrumbHTML;
+            currentFolderTitle.textContent = currentPath.length > 0 ? currentPath[currentPath.length - 1] : '全部文件';
+        }
+        
+        // 返回根目录
+        function goToRoot() {
+            currentPath = [];
+            updateBreadcrumb();
+            loadFiles(currentUserEmail);
+        }
+        
+        // 返回上级目录
+        function goBack() {
+            if (currentPath.length > 0) {
+                currentPath.pop();
+                updateBreadcrumb();
+                loadFiles(currentUserEmail);
+            }
+        }
+        
+        // 跳转到指定文件夹
+        function goToFolder(index) {
+            currentPath = currentPath.slice(0, index + 1);
+            updateBreadcrumb();
+            loadFiles(currentUserEmail);
+        }
+        
+        // 显示通知
+        function showNotification(message, type) {
+            notification.className = `notification ${type}`;
+            notificationText.textContent = message;
+            
+            if (type === 'success') {
+                notificationIcon.className = 'fas fa-check-circle';
+            } else {
+                notificationIcon.className = 'fas fa-exclamation-circle';
+            }
+            
+            notification.classList.remove('hidden');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+        
+        // 工具函数：获取文件类型图标
+        function getFileIcon(fileType) {
+            if (fileType.startsWith('image/')) return '🖼️';
+            if (fileType.startsWith('video/')) return '🎬';
+            if (fileType.startsWith('audio/')) return '🎵';
+            if (fileType.includes('pdf')) return '📄';
+            if (fileType.includes('zip') || fileType.includes('rar')) return '📦';
+            if (fileType.includes('word') || fileType.includes('document')) return '📝';
+            if (fileType.includes('sheet') || fileType.includes('excel')) return '📊';
+            return '📄';
+        }
+        
+        // 工具函数：格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
