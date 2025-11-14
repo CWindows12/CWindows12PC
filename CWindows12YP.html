@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CWindows12云盘 - 安全个人云存储</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .card-body {
+            padding: 30px;
+        }
+        
+        .auth-container {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .auth-form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a0a95;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .file-list {
+            padding: 20px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+        
+        .file-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            border-radius: 6px;
+            background: #e9ecef;
+            color: var(--gray);
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .file-meta {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .file-actions-item {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: var(--border-radius);
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .file-actions {
+                flex-wrap: wrap;
+            }
+        }
+        
+        .security-info {
+            background: #e7f3ff;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 20px;
+            border-radius: 4px;
+        }
+        
+        .security-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .folder-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+        
+        .folder-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .folder-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            border-radius: 6px;
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .folder-info {
+            flex: 1;
+        }
+        
+        .folder-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .folder-meta {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .breadcrumb-item:hover {
+            color: var(--primary);
+        }
+        
+        .breadcrumb-separator {
+            margin: 0 10px;
+            color: var(--gray);
+        }
+        
+        .current-folder {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1100;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+        
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 登录/注册卡片 -->
+        <div class="card" id="auth-card">
+            <div class="card-header">
+                <h1>欢迎使用CWindows12云盘</h1>
+                <p>安全、可靠的个人云存储解决方案</p>
+          </div>
+            <div class="card-body">
+                <div class="auth-container">
+                    <!-- 登录表单 -->
+                    <div class="auth-form">
+                        <h2>登录账户</h2>
+                        <div class="form-group">
+                            <label for="login-email">邮箱</label>
+                          <input type="email" id="login-email" placeholder="请输入您的邮箱">
+                      </div>
+                        <div class="form-group">
+                            <label for="login-password">密码</label>
+                            <input type="password" id="login-password" placeholder="请输入密码">
+                        </div>
+                        <button class="btn btn-primary" id="login-btn">登录</button>
+                        <div class="security-info">
+                            <div class="security-title">安全提示</div>
+                            <p>我们使用端到端加密保护您的数据，您的密码不会以明文形式存储。</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 注册表单 -->
+                    <div class="auth-form">
+                        <h2>注册账户</h2>
+                        <div class="form-group">
+                            <label for="register-email">邮箱</label>
+                          <input type="email" id="register-email" placeholder="请输入您的邮箱">
+                      </div>
+                        <div class="form-group">
+                            <label for="register-password">密码</label>
+                            <input type="password" id="register-password" placeholder="请设置密码（至少8位）">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">确认密码</label>
+                            <input type="password" id="confirm-password" placeholder="请再次输入密码">
+                        </div>
+                        <button class="btn btn-secondary" id="register-btn">注册</button>
+                      <div class="security-info">
+                            <div class="security-title">云盘集成</div>
+                          <p>注册后，您的文件将安全存储在CWindows12云盘中，随时随地访问。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 云盘界面 -->
+        <div class="card dashboard" id="dashboard">
+            <div class="dashboard-header">
+                <h2>我的云盘</h2>
+                <div class="user-info">
+                    <div class="avatar" id="user-avatar">U</div>
+                    <div>
+                        <div id="user-email">user@example.com</div>
+                        <button class="btn btn-outline" id="logout-btn">退出登录</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="breadcrumb" id="breadcrumb">
+                <div class="breadcrumb-item current-folder">全部文件</div>
+            </div>
+            
+            <div class="file-actions">
+                <button class="btn btn-primary" id="upload-btn">
+                    <i class="fas fa-upload"></i> 上传文件
+                </button>
+                <button class="btn btn-success" id="new-folder-btn">
+                    <i class="fas fa-folder-plus"></i> 新建文件夹
+                </button>
+                <button class="btn btn-outline" id="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> 刷新
+                </button>
+                <input type="file" id="file-input" class="hidden" multiple>
+            </div>
+            
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <h3>拖放文件到此处上传</h3>
+                <p>或点击选择文件</p>
+            </div>
+            
+            <div class="file-list">
+                <h3 id="current-folder-title">全部文件</h3>
+                <div id="files-container">
+                    <div class="loader" id="files-loader"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建文件夹模态框 -->
+    <div class="modal" id="folder-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建文件夹</h3>
+                <button class="close-btn" id="close-folder-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="folder-name">文件夹名称</label>
+                <input type="text" id="folder-name" placeholder="请输入文件夹名称">
+            </div>
+            <button class="btn btn-primary" id="create-folder-btn">创建</button>
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div class="notification hidden" id="notification">
+        <i class="fas fa-check-circle" id="notification-icon"></i>
+        <span id="notification-text"></span>
+    </div>
+
+    <script>
+        // 模拟服务器存储
+        class CloudStorageServer {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('cloud_drive_users')) || {};
+                this.fileStorage = JSON.parse(localStorage.getItem('cloud_drive_files')) || {};
+            }
+            
+            // 用户认证
+            registerUser(email, password) {
+                if (this.users[email]) {
+                    throw new Error('用户已存在');
+                }
+                this.users[email] = {
+                    password: password,
+                    files: [],
+                    folders: []
+                };
+                this.saveUsers();
+            }
+            
+            loginUser(email, password) {
+                if (!this.users[email] || this.users[email].password !== password) {
+                    throw new Error('邮箱或密码错误');
+                }
+                return this.users[email];
+            }
+            
+            // 文件操作
+            uploadFile(email, file, fileData) {
+                const user = this.users[email];
+                if (!user) throw new Error('用户不存在');
+                
+                // 检查文件是否已存在
+                if (user.files.some(f => f.name === file.name)) {
+                    throw new Error('文件已存在');
+                }
+                
+                // 存储文件元数据
+                const fileMeta = {
+                    id: this.generateFileId(),
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    uploaded: new Date().toISOString(),
+                    owner: email
+                };
+                
+                user.files.push(fileMeta);
+                
+                // 存储文件内容
+                this.fileStorage[fileMeta.id] = {
+                    data: fileData,
+                    meta: fileMeta
+                };
+                
+                this.saveUsers();
+                this.saveFiles();
+                
+                return fileMeta;
+            }
+            
+            downloadFile(email, filename) {
+                const user = this.users[email];
+                if (!user) throw new Error('用户不存在');
+                
+                const fileMeta = user.files.find(f => f.name === filename);
+                if (!fileMeta) throw new Error('文件不存在');
+                
+                const fileData = this.fileStorage[fileMeta.id];
+                if (!fileData) throw new Error('文件数据丢失');
+                
+                return {
+                    data: fileData.data,
+                    meta: fileMeta
+                };
+            }
+            
+            deleteFile(email, filename) {
+                const user = this.users[email];
+                if (!user) throw new Error('用户不存在');
+                
+                const fileIndex = user.files.findIndex(f => f.name === filename);
+                if (fileIndex === -1) throw new Error('文件不存在');
+                
+                const fileMeta = user.files[fileIndex];
+                delete this.fileStorage[fileMeta.id];
+                user.files.splice(fileIndex, 1);
+                
+                this.saveUsers();
+                this.saveFiles();
+            }
+            
+            // 文件夹操作
+            createFolder(email, folderName) {
+
+                const user = this.users[email];
+                if (!user) throw new Error('用户不存在');
+                
+                if (user.folders.some(f => f.name === folderName)) {
+                    throw new Error('文件夹已存在');
+                }
+                
+                user.folders.push({
+                    name: folderName,
+                    created: new Date().toISOString()
+                });
+                
+                this.saveUsers();
+            }
+            
+            deleteFolder(email, folderName) {
+                const user = this.users[email];
+                if (!user) throw new Error('用户不存在');
+                
+                const folderIndex = user.folders.findIndex(f => f.name === folderName);
+                if (folderIndex === -1) throw new Error('文件夹不存在');
+                
+                user.folders.splice(folderIndex, 1);
+                this.saveUsers();
+            }
+            
+            // 辅助方法
+            generateFileId() {
+                return 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            saveUsers() {
+                localStorage.setItem('cloud_drive_users', JSON.stringify(this.users));
+            }
+            
+            saveFiles() {
+                localStorage.setItem('cloud_drive_files', JSON.stringify(this.fileStorage));
+            }
+            
+            getUserFiles(email) {
+                const user = this.users[email];
+                return user ? user.files : [];
+            }
+            
+            getUserFolders(email) {
+                const user = this.users[email];
+                return user ? user.folders : [];
+            }
+        }
+
+        // 初始化服务器
+        const cloudServer = new CloudStorageServer();
+        
+        // DOM元素
+        const authCard = document.getElementById('auth-card');
+        const dashboard = document.getElementById('dashboard');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const newFolderBtn = document.getElementById('new-folder-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const filesContainer = document.getElementById('files-container');
+        const userEmail = document.getElementById('user-email');
+        const userAvatar = document.getElementById('user-avatar');
+        const folderModal = document.getElementById('folder-modal');
+        const closeFolderModal = document.getElementById('close-folder-modal');
+        const createFolderBtn = document.getElementById('create-folder-btn');
+        const folderNameInput = document.getElementById('folder-name');
+        const breadcrumb = document.getElementById('breadcrumb');
+        const currentFolderTitle = document.getElementById('current-folder-title');
+        const notification = document.getElementById('notification');
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationText = document.getElementById('notification-text');
+        
+        // 当前文件夹路径
+        let currentPath = [];
+        let currentUserEmail = null;
+        
+        // 初始化 - 确保显示登录页面
+        showAuth();
+        
+        // 登录事件
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                showNotification('请填写邮箱和密码', 'error');
+                return;
+            }
+            
+            try {
+                cloudServer.loginUser(email, password);
+                currentUserEmail = email;
+                localStorage.setItem('cloud_drive_current_user', email);
+                showDashboard(email);
+                showNotification('登录成功', 'success');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        });
+        
+        // 注册事件
+        registerBtn.addEventListener('click', () => {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (!email || !password || !confirmPassword) {
+                showNotification('请填写所有字段', 'error');
+                return;
+            }
+            
+            if (password.length < 8) {
+                showNotification('密码长度至少8位', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showNotification('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            try {
+                cloudServer.registerUser(email, password);
+                showNotification('注册成功，请登录', 'success');
+                
+                document.getElementById('register-email').value = '';
+                document.getElementById('register-password').value = '';
+                document.getElementById('confirm-password').value = '';
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        });
+        
+        // 退出登录
+        logoutBtn.addEventListener('click', () => {
+            currentUserEmail = null;
+            localStorage.removeItem('cloud_drive_current_user');
+            showAuth();
+            showNotification('已退出登录', 'success');
+        });
+        
+        // 上传文件
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (files.length > 0) {
+                await uploadFiles(files);
+            }
+        });
+        
+        // 拖放上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary)';
+            uploadArea.style.background = 'rgba(67, 97, 238, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = '';
+        });
+        
+        uploadArea.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = '';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                await uploadFiles(files);
+            }
+        });
+        
+        // 新建文件夹
+        newFolderBtn.addEventListener('click', () => {
+            folderModal.style.display = 'flex';
+            folderNameInput.value = '';
+            folderNameInput.focus();
+        });
+        
+        closeFolderModal.addEventListener('click', () => {
+            folderModal.style.display = 'none';
+        });
+        
+        createFolderBtn.addEventListener('click', () => {
+            const folderName = folderNameInput.value.trim();
+            if (!folderName) {
+                showNotification('请输入文件夹名称', 'error');
+                return;
+            }
+            
+            try {
+                cloudServer.createFolder(currentUserEmail, folderName);
+                folderModal.style.display = 'none';
+                loadFiles(currentUserEmail);
+                showNotification(`文件夹 "${folderName}" 创建成功`, 'success');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        });
+        
+        // 刷新文件列表
+        refreshBtn.addEventListener('click', () => {
+            if (currentUserEmail) {
+                loadFiles(currentUserEmail);
+                showNotification('文件列表已刷新', 'success');
+            }
+        });
+        
+        // 显示云盘界面
+        function showDashboard(email) {
+            authCard.style.display = 'none';
+            dashboard.style.display = 'block';
+            userEmail.textContent = email;
+            userAvatar.textContent = email.charAt(0).toUpperCase();
+            
+            currentPath = [];
+            updateBreadcrumb();
+            loadFiles(email);
+        }
+        
+        // 显示登录界面
+        function showAuth() {
+            authCard.style.display = 'block';
+            dashboard.style.display = 'none';
+            
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+        }
+        
+        // 加载文件列表
+        function loadFiles(email) {
+            filesContainer.innerHTML = '<div class="loader" id="files-loader"></div>';
+            
+            setTimeout(() => {
+                try {
+                    const userFiles = cloudServer.getUserFiles(email);
+                    const userFolders = cloudServer.getUserFolders(email);
+                    
+                    if (userFiles.length === 0 && userFolders.length === 0) {
+                        filesContainer.innerHTML = `
+                            <div style="text-align: center; padding: 40px; color: var(--gray);">
+                                <div style="font-size: 48px; margin-bottom: 15px;"><i class="fas fa-folder-open"></i></div>
+                                <h3>暂无文件</h3>
+                                <p>上传您的第一个文件开始使用云盘</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    let filesHTML = '';
+                    
+                    // 显示文件夹
+                    userFolders.forEach(folder => {
+                        filesHTML += `
+                            <div class="folder-item" onclick="openFolder('${folder.name}')">
+                                <div class="folder-icon"><i class="fas fa-folder"></i></div>
+                                <div class="folder-info">
+                                    <div class="folder-name">${folder.name}</div>
+                                    <div class="folder-meta">文件夹 • 创建于 ${new Date(folder.created).toLocaleDateString()}</div>
+                                </div>
+                                <div class="file-actions-item">
+                                    <button class="btn btn-danger" onclick="event.stopPropagation(); deleteFolder('${folder.name}')">删除</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // 显示文件
+                    userFiles.forEach(file => {
+                        const fileSize = formatFileSize(file.size);
+                        const uploadDate = new Date(file.uploaded).toLocaleDateString();
+                        
+                        filesHTML += `
+                            <div class="file-item">
+                                <div class="file-icon">${getFileIcon(file.type)}</div>
+                                <div class="file-info">
+                                    <div class="file-name">${file.name}</div>
+                                    <div class="file-meta">${fileSize} • 上传于 ${uploadDate}</div>
+                                </div>
+                                <div class="file-actions-item">
+                                    <button class="btn btn-primary" onclick="downloadFile('${file.name}')">下载</button>
+                                    <button class="btn btn-danger" onclick="deleteFile('${file.name}')">删除</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    filesContainer.innerHTML = filesHTML;
+                } catch (error) {
+                    showNotification('加载文件列表失败: ' + error.message, 'error');
+                }
+            }, 1000);
+        }
+        
+        // 上传文件
+        async function uploadFiles(files) {
+            if (!currentUserEmail) return;
+            
+            filesContainer.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="loader"></div>
+                    <p>上传文件中...</p>
+                </div>
+            `;
+            
+            try {
+                let successCount = 0;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // 读取文件内容
+                    const fileData = await readFileAsArrayBuffer(file);
+                    
+                    try {
+                        cloudServer.uploadFile(currentUserEmail, file, fileData);
+                        successCount++;
+                    } catch (error) {
+                        if (error.message === '文件已存在') {
+                            showNotification(`文件 "${file.name}" 已存在`, 'error');
+                        } else {
+                            throw error;
+                        }
+                    }
+                }
+                
+                loadFiles(currentUserEmail);
+                showNotification(`成功上传 ${successCount} 个文件`, 'success');
+            } catch (error) {
+                showNotification('上传失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 读取文件为ArrayBuffer
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        // 下载文件
+        function downloadFile(filename) {
+            if (!currentUserEmail) return;
+            
+            try {
+                const fileData = cloudServer.downloadFile(currentUserEmail, filename);
+                
+                // 创建Blob
+                const blob = new Blob([fileData.data], { type: fileData.meta.type });
+                const url = URL.createObjectURL(blob);
+                
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                
+                // 触发下载
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // 清理URL
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+                
+                showNotification(`开始下载: ${filename}`, 'success');
+            } catch (error) {
+                showNotification('下载失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 删除文件
+        function deleteFile(filename) {
+            if (confirm(`确定要删除 "${filename}" 吗？`)) {
+                try {
+                    cloudServer.deleteFile(currentUserEmail, filename);
+                    loadFiles(currentUserEmail);
+                    showNotification(`文件 "${filename}" 已删除`, 'success');
+                } catch (error) {
+                    showNotification('删除失败: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // 删除文件夹
+        function deleteFolder(folderName) {
+            if (confirm(`确定要删除文件夹 "${folderName}" 吗？`)) {
+                try {
+                    cloudServer.deleteFolder(currentUserEmail, folderName);
+                    loadFiles(currentUserEmail);
+                    showNotification(`文件夹 "${folderName}" 已删除`, 'success');
+                } catch (error) {
+                    showNotification('删除失败: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // 打开文件夹
+        function openFolder(folderName) {
+            currentPath.push(folderName);
+            updateBreadcrumb();
+            
+            filesContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--gray);">
+                    <div style="font-size: 48px; margin-bottom: 15px;"><i class="fas fa-folder-open"></i></div>
+                    <h3>${folderName}</h3>
+                    <p>在实际应用中，这里会显示文件夹内的文件</p>
+                    <button class="btn btn-primary" onclick="goBack()" style="margin-top: 15px;">返回上级目录</button>
+                </div>
+            `;
+        }
+        
+        // 更新面包屑导航
+        function updateBreadcrumb() {
+            let breadcrumbHTML = '';
+            
+            breadcrumbHTML += `<div class="breadcrumb-item" onclick="goToRoot()">全部文件</div>`;
+            
+            currentPath.forEach((folder, index) => {
+                breadcrumbHTML += `<div class="breadcrumb-separator">/</div>`;
+                if (index === currentPath.length - 1) {
+                    breadcrumbHTML += `<div class="breadcrumb-item current-folder">${folder}</div>`;
+                } else {
+                    breadcrumbHTML += `<div class="breadcrumb-item" onclick="goToFolder(${index})">${folder}</div>`;
+                }
+            });
+            
+            breadcrumb.innerHTML = breadcrumbHTML;
+            currentFolderTitle.textContent = currentPath.length > 0 ? currentPath[currentPath.length - 1] : '全部文件';
+        }
+        
+        // 返回根目录
+        function goToRoot() {
+            currentPath = [];
+            updateBreadcrumb();
+            loadFiles(currentUserEmail);
+        }
+        
+        // 返回上级目录
+        function goBack() {
+            if (currentPath.length > 0) {
+                currentPath.pop();
+                updateBreadcrumb();
+                loadFiles(currentUserEmail);
+            }
+        }
+        
+        // 跳转到指定文件夹
+        function goToFolder(index) {
+            currentPath = currentPath.slice(0, index + 1);
+            updateBreadcrumb();
+            loadFiles(currentUserEmail);
+        }
+        
+        // 显示通知
+        function showNotification(message, type) {
+            notification.className = `notification ${type}`;
+            notificationText.textContent = message;
+            
+            if (type === 'success') {
+                notificationIcon.className = 'fas fa-check-circle';
+            } else {
+                notificationIcon.className = 'fas fa-exclamation-circle';
+            }
+            
+            notification.classList.remove('hidden');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+        
+        // 工具函数：获取文件类型图标
+        function getFileIcon(fileType) {
+            if (fileType.startsWith('image/')) return '🖼️';
+            if (fileType.startsWith('video/')) return '🎬';
+            if (fileType.startsWith('audio/')) return '🎵';
+            if (fileType.includes('pdf')) return '📄';
+            if (fileType.includes('zip') || fileType.includes('rar')) return '📦';
+            if (fileType.includes('word') || fileType.includes('document')) return '📝';
+            if (fileType.includes('sheet') || fileType.includes('excel')) return '📊';
+            return '📄';
+        }
+        
+        // 工具函数：格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
